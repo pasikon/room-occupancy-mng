@@ -14,6 +14,17 @@ import java.util.List;
 @Service
 public class OccupancyCalculatorService {
 
+    public static final int PREMIUM_PRICE_THRESHOLD = 100;
+
+    /**
+     * Calculate occupancy breakdown for given params
+     *
+     * @param requestDTO
+     *  prices, customers and rooms data
+     *
+     * @return
+     *  cost & occupancy breakdown
+     */
     public CalculateOccupancyPriceResponseDTO calculateOccupancy(CalculateOccupancyPriceRequestDTO requestDTO) {
 
         var accEco = BigDecimal.ZERO;
@@ -23,20 +34,20 @@ public class OccupancyCalculatorService {
 
         var leftToAllocate = requestDTO.getCustomerData().size();
 
-        List<Float> toSort = new ArrayList<>(requestDTO.getCustomerData());
-        toSort.sort(Comparator.reverseOrder());
+        List<Float> customerPriceOffer = new ArrayList<>(requestDTO.getCustomerData());
+        customerPriceOffer.sort(Comparator.reverseOrder());
 
-        for (Float moneyOffer : toSort) {
-            if (premiumRooms > 0 && moneyOffer >= 100) {
-                accPremium = accPremium.add(new BigDecimal(moneyOffer).setScale(2, RoundingMode.UP));
+        for (Float moneyOffer : customerPriceOffer) {
+            if (premiumRooms > 0 && moneyOffer >= PREMIUM_PRICE_THRESHOLD) {
+                accPremium = accPremium.add(applyFloatScaling(moneyOffer));
                 premiumRooms = premiumRooms - 1;
                 leftToAllocate = leftToAllocate - 1;
             } else if (premiumRooms > 0 && leftToAllocate > requestDTO.getFreeEconomyRooms()) {
+                accPremium = accPremium.add(applyFloatScaling(moneyOffer));
                 premiumRooms = premiumRooms - 1;
                 leftToAllocate = leftToAllocate - 1;
-                accPremium = accPremium.add(new BigDecimal(moneyOffer).setScale(2, RoundingMode.UP));
-            } else if (ecoRooms > 0 && moneyOffer < 100) {
-                accEco = accEco.add(new BigDecimal(moneyOffer).setScale(2, RoundingMode.UP));
+            } else if (ecoRooms > 0 && moneyOffer < PREMIUM_PRICE_THRESHOLD) {
+                accEco = accEco.add(applyFloatScaling(moneyOffer));
                 ecoRooms =  ecoRooms - 1;
                 leftToAllocate = leftToAllocate - 1;
             }
@@ -49,6 +60,10 @@ public class OccupancyCalculatorService {
         calculateOccupancyPriceResponseDTO.setUsageEconomy(requestDTO.getFreeEconomyRooms() - ecoRooms);
         calculateOccupancyPriceResponseDTO.setUsagePremium(requestDTO.getFreePremiumRooms() - premiumRooms);
         return calculateOccupancyPriceResponseDTO;
+    }
+
+    private static BigDecimal applyFloatScaling(Float moneyOffer) {
+        return new BigDecimal(moneyOffer).setScale(2, RoundingMode.UP);
     }
 
 }
