@@ -1,0 +1,67 @@
+openapi: "3.0.3"
+
+info:
+  title: API for coding exercise
+  description: coding exercise API definition
+  version: 0.0.1
+servers:
+  - url: https://api.example.com/v1
+    description: Optional server description, e.g. Main (production) server
+paths:
+  /calculateOccupancyWithPrice:
+    get:
+      operationId: occupancyPriceGet
+      tags:
+        - occupancy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CalculateOccupancyPriceRequest"
+      responses:
+        200:
+          description: OK - cart updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalculateOccupancyPriceResponse'
+        400:
+          description: OK - cart updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+
+components:
+  schemas:
+
+    GenericError:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
+
+    CalculateOccupancyPriceRequest:
+      type: object
+      properties:
+        freeEconomyRooms:
+          type: integer
+        freePremiumRooms:
+          type: integer
+
+    CalculateOccupancyPriceResponse:
+      type: object
+      properties:
+        usageEconomy:
+          type: integer
+        usagePremium:
+          type: integer
+        priceForCustomer:
+          type: number
+          format: double

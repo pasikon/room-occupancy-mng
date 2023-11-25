@@ -22,6 +22,31 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
+
+		<dependency>
+			<groupId>io.swagger</groupId>
+			<artifactId>swagger-annotations</artifactId>
+			<version>1.6.11</version>
+		</dependency>
+		<dependency>
+			<groupId>io.swagger.core.v3</groupId>
+			<artifactId>swagger-annotations</artifactId>
+			<version>2.2.15</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openapitools</groupId>
+			<artifactId>jackson-databind-nullable</artifactId>
+			<version>0.2.6</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.github.tomakehurst</groupId>
+			<artifactId>wiremock</artifactId>
+			<version>3.0.0-beta-10</version>
+			<scope>test</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -31,6 +56,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>jakarta.validation</groupId>
+			<artifactId>jakarta.validation-api</artifactId>
+			<version>3.0.2</version>
 		</dependency>
 	</dependencies>
 
@@ -46,6 +76,55 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.openapitools</groupId>
+				<artifactId>openapi-generator-maven-plugin</artifactId>
+				<version>6.6.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>${project.basedir}/src/main/resources/openapi.yaml</inputSpec>
+							<generatorName>spring</generatorName>
+							<generateApis>true</generateApis>
+							<generateModels>true</generateModels>
+							<modelNameSuffix>DTO</modelNameSuffix>
+							<modelPackage>pl.exercise.coding.api.model</modelPackage>
+							<apiPackage>pl.exercise.coding.api</apiPackage>
+							<generateSupportingFiles>false</generateSupportingFiles>
+							<generateModelDocumentation>false</generateModelDocumentation>
+							<generateApiDocumentation>false</generateApiDocumentation>
+							<generateModelTests>false</generateModelTests>
+							<generateApiTests>true</generateApiTests>
+							<configOptions>
+								<useJakartaEe>true</useJakartaEe>
+								<interfaceOnly>true</interfaceOnly>
+								<skipDefaultInterface>true</skipDefaultInterface>
+								<dateLibrary>custom</dateLibrary>
+								<useOptional>true</useOptional>
+								<dateLibrary>java8</dateLibrary>
+								<useTags>true</useTags>
+							</configOptions>
+							<typeMappings>
+								<typeMapping>
+									StreamingResponseBodyStream=org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody
+								</typeMapping>
+							</typeMappings>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>17</source>
+					<target>17</target>
+					<compilerArgs>--enable-preview</compilerArgs>
 				</configuration>
 			</plugin>
 		</plugins>
