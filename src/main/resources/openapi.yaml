@@ -52,8 +52,17 @@ components:
       properties:
         freeEconomyRooms:
           type: integer
+          minimum: 0
         freePremiumRooms:
           type: integer
+          minimum: 0
+        customerData:
+          type: array
+          items:
+            type: number
+            minimum: 0
+            exclusiveMinimum: true
+            format: float
 
     CalculateOccupancyPriceResponse:
       type: object
@@ -62,6 +71,9 @@ components:
           type: integer
         usagePremium:
           type: integer
-        priceForCustomer:
+        pricePremium:
           type: number
-          format: double
+          format: float
+        priceEconomy:
+          type: number
+          format: float
