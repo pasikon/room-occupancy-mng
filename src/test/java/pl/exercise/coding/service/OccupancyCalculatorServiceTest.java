@@ -33,6 +33,19 @@ class OccupancyCalculatorServiceTest {
 
     }
 
+    @Test
+    void test2() {
+
+        CalculateOccupancyPriceResponseDTO calculateOccupancyPriceResponseDTO =
+                occupancyCalculatorService.calculateOccupancy(prepareTestData(7, 5));
+
+        assertEquals(1054f, calculateOccupancyPriceResponseDTO.getPricePremium());
+        assertEquals(189.99f, calculateOccupancyPriceResponseDTO.getPriceEconomy());
+        assertEquals(6, calculateOccupancyPriceResponseDTO.getUsagePremium());
+        assertEquals(4, calculateOccupancyPriceResponseDTO.getUsageEconomy());
+
+    }
+
     private static CalculateOccupancyPriceRequestDTO prepareTestData(int freePremiumRooms, int freeEconomyRooms) {
         CalculateOccupancyPriceRequestDTO calculateOccupancyPriceRequestDTO = new CalculateOccupancyPriceRequestDTO();
         calculateOccupancyPriceRequestDTO.setFreePremiumRooms(freePremiumRooms);

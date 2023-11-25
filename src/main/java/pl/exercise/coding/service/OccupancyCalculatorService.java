@@ -25,7 +25,7 @@ public class OccupancyCalculatorService {
         toSort.sort(Comparator.reverseOrder());
 
         for (Float moneyOffer : toSort) {
-            if (premiumRooms > 0) {
+            if (premiumRooms > 0 && moneyOffer >= 100) {
                 accPremium = accPremium.add(new BigDecimal(moneyOffer).setScale(2, RoundingMode.UP));
                 premiumRooms = premiumRooms - 1;
             } else if (ecoRooms > 0 && moneyOffer < 100) {
