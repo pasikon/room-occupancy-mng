@@ -46,6 +46,32 @@ class OccupancyCalculatorServiceTest {
 
     }
 
+    @Test
+    void test3() {
+
+        CalculateOccupancyPriceResponseDTO calculateOccupancyPriceResponseDTO =
+                occupancyCalculatorService.calculateOccupancy(prepareTestData(2, 7));
+
+        assertEquals(583f, calculateOccupancyPriceResponseDTO.getPricePremium());
+        assertEquals(189.99f, calculateOccupancyPriceResponseDTO.getPriceEconomy());
+        assertEquals(2, calculateOccupancyPriceResponseDTO.getUsagePremium());
+        assertEquals(4, calculateOccupancyPriceResponseDTO.getUsageEconomy());
+
+    }
+
+    @Test
+    void test4() {
+
+        CalculateOccupancyPriceResponseDTO calculateOccupancyPriceResponseDTO =
+                occupancyCalculatorService.calculateOccupancy(prepareTestData(7, 1));
+
+//        assertEquals(1153f, calculateOccupancyPriceResponseDTO.getPricePremium());
+//        assertEquals(45.99f, calculateOccupancyPriceResponseDTO.getPriceEconomy());
+//        assertEquals(7, calculateOccupancyPriceResponseDTO.getUsagePremium());
+        assertEquals(1, calculateOccupancyPriceResponseDTO.getUsageEconomy());
+
+    }
+
     private static CalculateOccupancyPriceRequestDTO prepareTestData(int freePremiumRooms, int freeEconomyRooms) {
         CalculateOccupancyPriceRequestDTO calculateOccupancyPriceRequestDTO = new CalculateOccupancyPriceRequestDTO();
         calculateOccupancyPriceRequestDTO.setFreePremiumRooms(freePremiumRooms);

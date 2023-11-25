@@ -21,6 +21,8 @@ public class OccupancyCalculatorService {
         var ecoRooms = requestDTO.getFreeEconomyRooms();
         var premiumRooms = requestDTO.getFreePremiumRooms();
 
+        var leftToAllocate = requestDTO.getCustomerData().size();
+
         List<Float> toSort = new ArrayList<>(requestDTO.getCustomerData());
         toSort.sort(Comparator.reverseOrder());
 
@@ -28,9 +30,15 @@ public class OccupancyCalculatorService {
             if (premiumRooms > 0 && moneyOffer >= 100) {
                 accPremium = accPremium.add(new BigDecimal(moneyOffer).setScale(2, RoundingMode.UP));
                 premiumRooms = premiumRooms - 1;
+                leftToAllocate = leftToAllocate - 1;
+            } else if (premiumRooms > 0 && leftToAllocate > requestDTO.getFreeEconomyRooms()) {
+                premiumRooms = premiumRooms - 1;
+                leftToAllocate = leftToAllocate - 1;
+                accPremium = accPremium.add(new BigDecimal(moneyOffer).setScale(2, RoundingMode.UP));
             } else if (ecoRooms > 0 && moneyOffer < 100) {
                 accEco = accEco.add(new BigDecimal(moneyOffer).setScale(2, RoundingMode.UP));
                 ecoRooms =  ecoRooms - 1;
+                leftToAllocate = leftToAllocate - 1;
             }
         }
 
