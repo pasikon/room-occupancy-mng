@@ -11,6 +11,9 @@ import pl.exercise.coding.service.OccupancyCalculatorService;
 
 @Slf4j
 @RestController
+/**
+ * REST API implementation for REST interface
+ */
 public class OccupancyRestFacade implements OccupancyApi {
 
     final
