@@ -34,22 +34,18 @@ public class OccupancyCalculatorService {
 
         var leftToAllocate = requestDTO.getCustomerData().size();
 
-        List<Float> customerPriceOffer = new ArrayList<>(requestDTO.getCustomerData());
-        customerPriceOffer.sort(Comparator.reverseOrder());
+        List<Float> customerPriceOffers = new ArrayList<>(requestDTO.getCustomerData());
+        customerPriceOffers.sort(Comparator.reverseOrder());
 
-        for (Float moneyOffer : customerPriceOffer) {
-            if (premiumRooms > 0 && moneyOffer >= PREMIUM_PRICE_THRESHOLD) {
+        for (Float moneyOffer : customerPriceOffers) {
+            if (isAllocateInPremiumRoom(moneyOffer, premiumRooms) || isUpgradeToPremium(requestDTO.getFreeEconomyRooms(), premiumRooms, leftToAllocate)) {
                 accPremium = accPremium.add(applyFloatScaling(moneyOffer));
-                premiumRooms = premiumRooms - 1;
-                leftToAllocate = leftToAllocate - 1;
-            } else if (premiumRooms > 0 && leftToAllocate > requestDTO.getFreeEconomyRooms()) {
-                accPremium = accPremium.add(applyFloatScaling(moneyOffer));
-                premiumRooms = premiumRooms - 1;
-                leftToAllocate = leftToAllocate - 1;
-            } else if (ecoRooms > 0 && moneyOffer < PREMIUM_PRICE_THRESHOLD) {
+                premiumRooms--;
+                leftToAllocate--;
+            } else if (isAllocateInEconomyRoom(moneyOffer, ecoRooms)) {
                 accEco = accEco.add(applyFloatScaling(moneyOffer));
-                ecoRooms =  ecoRooms - 1;
-                leftToAllocate = leftToAllocate - 1;
+                ecoRooms--;
+                leftToAllocate--;
             }
         }
 
@@ -60,6 +56,18 @@ public class OccupancyCalculatorService {
         calculateOccupancyPriceResponseDTO.setUsageEconomy(requestDTO.getFreeEconomyRooms() - ecoRooms);
         calculateOccupancyPriceResponseDTO.setUsagePremium(requestDTO.getFreePremiumRooms() - premiumRooms);
         return calculateOccupancyPriceResponseDTO;
+    }
+
+    private static boolean isAllocateInEconomyRoom(float moneyOffer, int ecoRooms) {
+        return ecoRooms > 0 && moneyOffer < PREMIUM_PRICE_THRESHOLD;
+    }
+
+    private static boolean isUpgradeToPremium(int freeEconomy, int freePremium, int leftToAllocate) {
+        return freePremium > 0 && leftToAllocate > freeEconomy;
+    }
+
+    private static boolean isAllocateInPremiumRoom(float moneyOffer, int premiumRooms) {
+        return premiumRooms > 0 && moneyOffer >= PREMIUM_PRICE_THRESHOLD;
     }
 
     private static BigDecimal applyFloatScaling(Float moneyOffer) {

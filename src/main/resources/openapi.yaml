@@ -49,6 +49,7 @@ components:
 
     CalculateOccupancyPriceRequest:
       type: object
+      required: [freeEconomyRooms, freePremiumRooms, customerData]
       properties:
         freeEconomyRooms:
           type: integer
@@ -61,7 +62,7 @@ components:
           items:
             type: number
             minimum: 0
-            exclusiveMinimum: true
+            exclusiveMinimum: true # not for free!
             format: float
 
     CalculateOccupancyPriceResponse:
