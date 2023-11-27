@@ -5,7 +5,7 @@ info:
   description: coding exercise API definition
   version: 0.0.1
 servers:
-  - url: https://api.example.com/v1
+  - url: http://localhost:8080/
     description: Optional server description, e.g. Main (production) server
 paths:
   /calculateOccupancyWithPrice:
@@ -21,31 +21,16 @@ paths:
               $ref: "#/components/schemas/CalculateOccupancyPriceRequest"
       responses:
         200:
-          description: OK - cart updated successfully
+          description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CalculateOccupancyPriceResponse'
         400:
-          description: OK - cart updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GenericError'
+          description: bad request
 
 components:
   schemas:
-
-    GenericError:
-      type: object
-      properties:
-        code:
-          type: string
-        message:
-          type: string
-      required:
-        - code
-        - message
 
     CalculateOccupancyPriceRequest:
       type: object

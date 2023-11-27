@@ -1,16 +1,14 @@
 package pl.exercise.coding.service;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 import pl.exercise.coding.api.model.CalculateOccupancyPriceRequestDTO;
 import pl.exercise.coding.api.model.CalculateOccupancyPriceResponseDTO;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 @SpringBootTest
@@ -65,9 +63,9 @@ class OccupancyCalculatorServiceTest {
         CalculateOccupancyPriceResponseDTO calculateOccupancyPriceResponseDTO =
                 occupancyCalculatorService.calculateOccupancy(prepareTestData(7, 1));
 
-//        assertEquals(1153f, calculateOccupancyPriceResponseDTO.getPricePremium());
-//        assertEquals(45.99f, calculateOccupancyPriceResponseDTO.getPriceEconomy());
-//        assertEquals(7, calculateOccupancyPriceResponseDTO.getUsagePremium());
+        assertEquals(1153.99f, calculateOccupancyPriceResponseDTO.getPricePremium());
+        assertEquals(45f, calculateOccupancyPriceResponseDTO.getPriceEconomy());
+        assertEquals(7, calculateOccupancyPriceResponseDTO.getUsagePremium());
         assertEquals(1, calculateOccupancyPriceResponseDTO.getUsageEconomy());
 
     }
