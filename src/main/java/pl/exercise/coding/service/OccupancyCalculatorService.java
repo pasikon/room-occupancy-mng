@@ -14,48 +14,53 @@ import java.util.List;
 @Service
 public class OccupancyCalculatorService {
 
-    public static final int PREMIUM_PRICE_THRESHOLD = 100;
+    static final int PREMIUM_PRICE_THRESHOLD = 100;
 
     /**
-     * Calculate occupancy breakdown for given params
+     * Calculate occupancy breakdown for given params.
      *
-     * @param requestDTO
-     *  prices, customers and rooms data
-     *
-     * @return
-     *  cost & occupancy breakdown
+     * @param requestDTO prices, customers and rooms data
+     * @return cost & occupancy breakdown
      */
     public CalculateOccupancyPriceResponseDTO calculateOccupancy(CalculateOccupancyPriceRequestDTO requestDTO) {
 
-        var accEco = BigDecimal.ZERO;
-        var accPremium = BigDecimal.ZERO;
-        var ecoRooms = requestDTO.getFreeEconomyRooms();
-        var premiumRooms = requestDTO.getFreePremiumRooms();
+        var accEcoPrice = BigDecimal.ZERO;
+        var accPremiumPrice = BigDecimal.ZERO;
+        var freeEcoRooms = requestDTO.getFreeEconomyRooms();
+        var freePremiumRooms = requestDTO.getFreePremiumRooms();
+        var roomsLeftToAllocate = requestDTO.getCustomerData().size();
 
-        var leftToAllocate = requestDTO.getCustomerData().size();
+        int availableEconomyRooms = requestDTO.getFreeEconomyRooms();
 
         List<Float> customerPriceOffers = new ArrayList<>(requestDTO.getCustomerData());
         customerPriceOffers.sort(Comparator.reverseOrder());
 
         for (Float moneyOffer : customerPriceOffers) {
-            if (isAllocateInPremiumRoom(moneyOffer, premiumRooms) || isUpgradeToPremium(requestDTO.getFreeEconomyRooms(), premiumRooms, leftToAllocate)) {
-                accPremium = accPremium.add(applyFloatScaling(moneyOffer));
-                premiumRooms--;
-                leftToAllocate--;
-            } else if (isAllocateInEconomyRoom(moneyOffer, ecoRooms)) {
-                accEco = accEco.add(applyFloatScaling(moneyOffer));
-                ecoRooms--;
-                leftToAllocate--;
+            if (isAllocateInPremiumRoom(moneyOffer, freePremiumRooms, availableEconomyRooms, roomsLeftToAllocate)) {
+                accPremiumPrice = accPremiumPrice.add(applyFloatScaling(moneyOffer));
+                freePremiumRooms--;
+                roomsLeftToAllocate--;
+            } else if (isAllocateInEconomyRoom(moneyOffer, freeEcoRooms)) {
+                accEcoPrice = accEcoPrice.add(applyFloatScaling(moneyOffer));
+                freeEcoRooms--;
+                roomsLeftToAllocate--;
             }
         }
 
+        return buildOutputDTO(requestDTO, accPremiumPrice, accEcoPrice, freeEcoRooms, freePremiumRooms);
+    }
 
+    private static CalculateOccupancyPriceResponseDTO buildOutputDTO(CalculateOccupancyPriceRequestDTO requestDTO, BigDecimal accPremiumPrice, BigDecimal accEcoPrice, Integer freeEcoRooms, Integer freePremiumRooms) {
         CalculateOccupancyPriceResponseDTO calculateOccupancyPriceResponseDTO = new CalculateOccupancyPriceResponseDTO();
-        calculateOccupancyPriceResponseDTO.setPricePremium(accPremium.floatValue());
-        calculateOccupancyPriceResponseDTO.setPriceEconomy(accEco.floatValue());
-        calculateOccupancyPriceResponseDTO.setUsageEconomy(requestDTO.getFreeEconomyRooms() - ecoRooms);
-        calculateOccupancyPriceResponseDTO.setUsagePremium(requestDTO.getFreePremiumRooms() - premiumRooms);
+        calculateOccupancyPriceResponseDTO.setPricePremium(accPremiumPrice.floatValue());
+        calculateOccupancyPriceResponseDTO.setPriceEconomy(accEcoPrice.floatValue());
+        calculateOccupancyPriceResponseDTO.setUsageEconomy(requestDTO.getFreeEconomyRooms() - freeEcoRooms);
+        calculateOccupancyPriceResponseDTO.setUsagePremium(requestDTO.getFreePremiumRooms() - freePremiumRooms);
         return calculateOccupancyPriceResponseDTO;
+    }
+
+    private static boolean isAllocateInPremiumRoom(Float moneyOffer, Integer freePremiumRooms, int availableEconomyRooms, int roomsLeftToAllocate) {
+        return isPutInPremiumRoom(moneyOffer, freePremiumRooms) || isUpgradeToPremium(availableEconomyRooms, freePremiumRooms, roomsLeftToAllocate);
     }
 
     private static boolean isAllocateInEconomyRoom(float moneyOffer, int ecoRooms) {
@@ -66,7 +71,7 @@ public class OccupancyCalculatorService {
         return freePremium > 0 && leftToAllocate > freeEconomy;
     }
 
-    private static boolean isAllocateInPremiumRoom(float moneyOffer, int premiumRooms) {
+    private static boolean isPutInPremiumRoom(float moneyOffer, int premiumRooms) {
         return premiumRooms > 0 && moneyOffer >= PREMIUM_PRICE_THRESHOLD;
     }
 
